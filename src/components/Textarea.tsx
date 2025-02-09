@@ -1,9 +1,11 @@
-import React, { useState, useRef } from "react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import { updateCellValue } from "../store/tableSlice";
 import styled from "styled-components";
 
 interface TextareaProps {
-  value: string;
-  onChange: (newValue: string) => void;
+  id: string;
 }
 
 const StyledTextarea = styled.textarea`
@@ -14,30 +16,24 @@ const StyledTextarea = styled.textarea`
   outline: none;
   box-sizing: border-box;
   resize: none;
-  overflow: hidden;
+  overflow: auto;
   line-height: 1.5;
   font-size: 1.25rem;
   font-family: Montserrat, sans-serif;
-  resize: none; /* Отключаем изменение размера вручную */
-  overflow: auto; /* Добавляем прокрутку, если текст не помещается */
 `;
 
-const Textarea: React.FC<TextareaProps> = ({ value, onChange }) => {
-  const [inputValue, setInputValue] = useState(value);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+const Textarea: React.FC<TextareaProps> = ({ id }) => {
+  const dispatch = useDispatch();
+  const value = useSelector(
+    (state: RootState) =>
+      state.table.cells.find((cell: TextareaProps) => cell.id === id)?.value
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInputValue(e.target.value);
-    onChange(e.target.value);
+    dispatch(updateCellValue({ id, value: e.target.value }));
   };
 
-  return (
-    <StyledTextarea
-      ref={textareaRef}
-      value={inputValue}
-      onChange={handleChange}
-    />
-  );
+  return <StyledTextarea value={value || ""} onChange={handleChange} />;
 };
 
 export default Textarea;

@@ -1,50 +1,43 @@
-import React, { useState } from "react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import { updateCellValue } from "../store/tableSlice";
 import styled from "styled-components";
 
-type InputType = "text" | "number";
-
 interface InputProps {
-  value: string | number;
-  onChange: (newValue: string | number) => void;
+  id: string;
   textColor?: string;
   textAlign?: string;
 }
 
-const StyledInput = styled.input<{ textAlign?: string; textColor?: string }>`
+const StyledInput = styled.input<{ $textAlign?: string; $textColor?: string }>`
   width: 100%;
   height: 100%;
   border: none;
   background: none;
   outline: none;
-  text-align: ${(props) => props.textAlign || "left"};
+  text-align: ${(props) => props.$textAlign || "left"};
   padding: 0;
-  color: ${({ textColor }) => textColor || "inherit"};
+  color: ${(props) => props.$textColor || "inherit"};
 `;
 
-const Input: React.FC<InputProps> = ({
-  value,
-  onChange,
-  textColor,
-  textAlign,
-}) => {
-  const [inputValue, setInputValue] = useState(value);
+const Input: React.FC<InputProps> = ({ id, textColor, textAlign }) => {
+  const dispatch = useDispatch();
+  const value = useSelector(
+    (state: RootState) =>
+      state.table.cells.find((cell: InputProps) => cell.id === id)?.value
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let newValue = e.target.value;
-    setInputValue(newValue);
-  };
-
-  const handleBlur = () => {
-    onChange(inputValue);
+    dispatch(updateCellValue({ id, value: e.target.value }));
   };
 
   return (
     <StyledInput
-      value={inputValue}
-      textColor={textColor}
-      textAlign={textAlign}
+      value={value || ""}
+      $textColor={textColor}
+      $textAlign={textAlign}
       onChange={handleChange}
-      onBlur={handleBlur}
     />
   );
 };
