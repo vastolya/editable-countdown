@@ -29,7 +29,22 @@ const Input: React.FC<InputProps> = ({ id, textColor, textAlign }) => {
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(updateCellValue({ id, value: e.target.value }));
+    let newValue = e.target.value;
+
+    if (["hours", "efficiency"].includes(id)) {
+      newValue = newValue.replace(/[^0-9.,]/g, "");
+    }
+
+    if (id === "master" || id === "status" || id === "personnel_header") {
+      newValue = newValue.replace(/[^А-Яа-я. ]/g, "");
+    }
+
+    if (id === "personnel_id" || id === "equipment" || id === "spi") {
+    } else if (id === "personnel") {
+      newValue = newValue.replace(/[^0-9А-Яа-я ]/g, "");
+    }
+
+    dispatch(updateCellValue({ id, value: newValue }));
   };
 
   return (
